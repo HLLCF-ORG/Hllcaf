@@ -62,7 +62,7 @@ export default function Footer() {
       </div>
 
       <div className="container footer-bottom">
-        <span>© {new Date().getFullYear()} {SITE.name}. All rights reserved.</span>
+        <span>© {new Date().getFullYear()} {SITE.name}. All rights reserved, 2026.</span>
         <span>Serving communities with hope and dignity.</span>
       </div>
     </footer>
