@@ -9,3 +9,5 @@ out
 build_log.txt
 path_out.txt
 shell_out.txt
+
+.vercel
