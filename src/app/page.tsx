@@ -34,15 +34,50 @@ export default function HomePage() {
             at a time.
           </p>
           <div className="hero-cta">
+            <Link href="/membership" className="btn btn-member-hero">
+              <span className="btn-member-pulse" aria-hidden="true" />
+              <span>Register as a Member</span>
+              <span className="btn-member-arrow" aria-hidden="true">→</span>
+            </Link>
             <Link href="/get-involved" className="btn btn-gold">
               Donate Now
-            </Link>
-            <Link href="/get-involved#volunteer" className="btn btn-outline">
-              Become a Volunteer
             </Link>
             <Link href="/contact" className="btn btn-outline">
               Contact Us
             </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="member-spotlight-section">
+        <div className="container">
+          <div className="member-spotlight-card">
+            <div className="member-spotlight-glow" aria-hidden="true" />
+            <div className="member-spotlight-content">
+              <div className="member-spotlight-badge">
+                <span className="live-dot" aria-hidden="true" />
+                <span>Membership Portal Open</span>
+              </div>
+              <h2>Become an Official HLLCAF Member Today</h2>
+              <p>
+                Join our passionate network of change-makers, volunteers, and community
+                advocates across Nigeria and the diaspora. Registration takes less than 2 minutes.
+              </p>
+              <div className="member-spotlight-pills">
+                <span>✓ Fast &amp; Free Registration</span>
+                <span>✓ Healthcare &amp; Community Outreach</span>
+                <span>✓ Protected &amp; Confidential</span>
+              </div>
+            </div>
+            <div className="member-spotlight-action">
+              <Link href="/membership" className="btn btn-member-spotlight">
+                <span>Register as a Member</span>
+                <span className="btn-member-arrow" aria-hidden="true">→</span>
+              </Link>
+              <span className="member-spotlight-note">
+                Instant confirmation • Connect with our team
+              </span>
+            </div>
           </div>
         </div>
       </section>
@@ -147,6 +182,11 @@ export default function HomePage() {
               families in Ado Ekiti and beyond live with dignity.
             </p>
             <div className="hero-cta">
+              <Link href="/membership" className="btn btn-member-hero">
+                <span className="btn-member-pulse" aria-hidden="true" />
+                <span>Register as a Member</span>
+                <span className="btn-member-arrow" aria-hidden="true">→</span>
+              </Link>
               <Link href="/get-involved" className="btn btn-gold">
                 Get Involved
               </Link>

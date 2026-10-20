@@ -8,6 +8,8 @@ export const SITE = {
   emailHref: "mailto:info@heartoflifeline.org",
   address: "Ado Ekiti, Adebayo, Nigeria",
   whatsapp: "https://wa.me/2348062274746",
+  membershipPhone: "09063563870",
+  membershipWhatsApp: "https://wa.me/2349063563870",
   social: {
     facebook: "https://facebook.com/",
     instagram: "https://instagram.com/",
@@ -185,5 +187,6 @@ export const NAV_LINKS = [
   { href: "/about", label: "About Us" },
   { href: "/programs", label: "Programs & Services" },
   { href: "/get-involved", label: "Get Involved" },
+  { href: "/membership", label: "Membership" },
   { href: "/contact", label: "Contact Us" },
 ];

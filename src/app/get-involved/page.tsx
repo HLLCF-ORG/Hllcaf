@@ -64,10 +64,10 @@ export default function GetInvolvedPage() {
               <li>Professional skills and advocacy</li>
             </ul>
             <div className="hero-cta">
-              <Link href="/contact" className="btn btn-primary">
-                Sign Up to Volunteer
+              <Link href="/membership" className="btn btn-primary">
+                Membership Form
               </Link>
-              <a href={SITE.whatsapp} className="btn btn-outline-dark" target="_blank" rel="noreferrer">
+              <a href={SITE.membershipWhatsApp} className="btn btn-outline-dark" target="_blank" rel="noreferrer">
                 Chat on WhatsApp
               </a>
             </div>
