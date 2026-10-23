@@ -118,7 +118,7 @@ export default function HomePage() {
               <p className="eyebrow">Our Mission</p>
               <h2>Improving lives through care and partnership</h2>
             </div>
-            <p>{MISSION.slice(0, 280)}...</p>
+            <p>{MISSION}</p>
             <div className="hero-cta">
               <Link href="/about" className="btn btn-primary">
                 About Us
@@ -154,7 +154,7 @@ export default function HomePage() {
                 ) : (
                   <div
                     style={{
-                      height: 160,
+                      height: 200,
                       background:
                         "linear-gradient(135deg, var(--green-100), var(--gold-100))",
                     }}

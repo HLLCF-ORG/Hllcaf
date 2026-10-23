@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS public.members (
     address TEXT,
     occupation TEXT,
     reason TEXT,
+    photo_path TEXT,
     consent_agreed BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

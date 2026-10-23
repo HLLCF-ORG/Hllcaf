@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { SITE } from "@/lib/content";
 
@@ -71,13 +71,60 @@ const initialFormState: FormState = {
   consent: false,
 };
 
+const PHOTO_BUCKET = "member-photos";
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024; // 2MB
+const ALLOWED_PHOTO_TYPES: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+
 export default function MembershipForm() {
   const [formData, setFormData] = useState<FormState>(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [submittedData, setSubmittedData] = useState<FormState | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState("");
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const supabase = createClient();
+
+  // Release the preview object URL when it changes or the component unmounts
+  useEffect(() => {
+    return () => {
+      if (photoPreview) URL.revokeObjectURL(photoPreview);
+    };
+  }, [photoPreview]);
+
+  const clearPhoto = () => {
+    setPhotoFile(null);
+    setPhotoPreview(null);
+    setPhotoError("");
+    if (photoInputRef.current) photoInputRef.current.value = "";
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setPhotoError("");
+    if (!file) {
+      clearPhoto();
+      return;
+    }
+    if (!ALLOWED_PHOTO_TYPES[file.type]) {
+      clearPhoto();
+      setPhotoError("Please upload a JPG, PNG, or WEBP image.");
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      clearPhoto();
+      setPhotoError("Image is too large. Maximum size is 2MB.");
+      return;
+    }
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -119,8 +166,32 @@ export default function MembershipForm() {
     setIsSubmitting(true);
 
     try {
+      // 1. Upload passport photograph (optional) to the private storage bucket
+      let photoPath: string | null = null;
+      if (photoFile) {
+        const ext = ALLOWED_PHOTO_TYPES[photoFile.type];
+        photoPath = `${crypto.randomUUID()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from(PHOTO_BUCKET)
+          .upload(photoPath, photoFile, {
+            contentType: photoFile.type,
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error("Photo upload error:", uploadError);
+          setErrorMessage(
+            "We couldn't upload your photo. Please try a different image, or remove the photo and submit without it."
+          );
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // 2. Save member record
       const { error } = await supabase.from("members").insert([
         {
+          photo_path: photoPath,
           full_name: formData.fullName.trim(),
           phone: formData.phone.trim(),
           email: formData.email.trim().toLowerCase(),
@@ -152,6 +223,8 @@ export default function MembershipForm() {
 
       setSubmittedData({ ...formData });
       setIsSubmitting(false);
+      // Keep the preview for the success screen; drop the file reference
+      setPhotoFile(null);
     } catch (err: unknown) {
       console.error("Submission exception:", err);
       setErrorMessage(
@@ -189,6 +262,12 @@ export default function MembershipForm() {
         </p>
 
         <div className="member-summary-box">
+          {photoPreview ? (
+            <div className="summary-photo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photoPreview} alt="Your passport photograph" />
+            </div>
+          ) : null}
           <div className="summary-row">
             <span>Full Name:</span>
             <strong>{submittedData.fullName}</strong>
@@ -236,6 +315,7 @@ export default function MembershipForm() {
             onClick={() => {
               setSubmittedData(null);
               setFormData(initialFormState);
+              clearPhoto();
             }}
           >
             Register Another Member
@@ -271,7 +351,9 @@ export default function MembershipForm() {
 
       <div className="form-row">
         <label>
-          Full Name <span className="req">*</span>
+          <span className="label-text">
+            Full Name <span className="req">*</span>
+          </span>
           <input
             name="fullName"
             type="text"
@@ -282,7 +364,7 @@ export default function MembershipForm() {
           />
         </label>
         <label>
-          Gender
+          <span className="label-text">Gender</span>
           <select name="gender" value={formData.gender} onChange={handleChange}>
             <option value="">Select gender</option>
             <option value="Female">Female</option>
@@ -294,7 +376,9 @@ export default function MembershipForm() {
 
       <div className="form-row">
         <label>
-          Phone Number <span className="req">*</span>
+          <span className="label-text">
+            Phone Number <span className="req">*</span>
+          </span>
           <input
             name="phone"
             type="tel"
@@ -305,7 +389,9 @@ export default function MembershipForm() {
           />
         </label>
         <label>
-          Email Address <span className="req">*</span>
+          <span className="label-text">
+            Email Address <span className="req">*</span>
+          </span>
           <input
             name="email"
             type="email"
@@ -317,6 +403,55 @@ export default function MembershipForm() {
         </label>
       </div>
 
+      <div className="photo-upload">
+        <span className="label-text">
+          Passport Photograph <span className="optional-tag">(optional)</span>
+        </span>
+        <div className="photo-upload-body">
+          <div className="photo-preview" aria-hidden={!photoPreview}>
+            {photoPreview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={photoPreview} alt="Selected passport photograph preview" />
+            ) : (
+              <span className="photo-placeholder" aria-hidden="true">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" />
+                </svg>
+              </span>
+            )}
+          </div>
+          <div className="photo-upload-actions">
+            <label className="btn btn-outline-dark photo-pick-btn">
+              {photoFile ? "Change Photo" : "Upload Photo"}
+              <input
+                ref={photoInputRef}
+                type="file"
+                name="photo"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handlePhotoChange}
+                className="visually-hidden"
+              />
+            </label>
+            {photoFile ? (
+              <button type="button" className="photo-remove-btn" onClick={clearPhoto}>
+                Remove
+              </button>
+            ) : null}
+            <p className="photo-hint">
+              {photoFile
+                ? photoFile.name
+                : "Clear, recent passport-style photo. JPG, PNG or WEBP, max 2MB."}
+            </p>
+            {photoError ? (
+              <p className="photo-error" role="alert">
+                {photoError}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
       <div className="form-section-header" style={{ marginTop: "1rem" }}>
         <h4>2. Location & Residence</h4>
         <p>Helps us organize regional outreaches and volunteer groups.</p>
@@ -324,7 +459,9 @@ export default function MembershipForm() {
 
       <div className="form-row">
         <label>
-          State of Residence <span className="req">*</span>
+          <span className="label-text">
+            State of Residence <span className="req">*</span>
+          </span>
           <select name="state" value={formData.state} onChange={handleChange} required>
             {NIGERIAN_STATES.map((st) => (
               <option key={st} value={st}>
@@ -334,7 +471,9 @@ export default function MembershipForm() {
           </select>
         </label>
         <label>
-          City / Town <span className="req">*</span>
+          <span className="label-text">
+            City / Town <span className="req">*</span>
+          </span>
           <input
             name="city"
             type="text"
@@ -347,7 +486,7 @@ export default function MembershipForm() {
       </div>
 
       <label>
-        Residential / Contact Address
+        <span className="label-text">Residential / Contact Address</span>
         <input
           name="address"
           type="text"
@@ -363,7 +502,7 @@ export default function MembershipForm() {
       </div>
 
       <label>
-        Occupation / Profession
+        <span className="label-text">Occupation / Profession</span>
         <input
           name="occupation"
           type="text"
@@ -374,7 +513,7 @@ export default function MembershipForm() {
       </label>
 
       <label>
-        Why would you like to join HLLCAF?
+        <span className="label-text">Why would you like to join HLLCAF?</span>
         <textarea
           name="reason"
           placeholder="Share your motivation, special skills, or how you would like to participate in Foundation outreach..."

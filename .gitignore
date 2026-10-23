@@ -12,3 +12,4 @@ shell_out.txt
 .vercel
 .agents
 skills-lock.json
+*.tsbuildinfo

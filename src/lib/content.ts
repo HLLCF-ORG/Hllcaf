@@ -105,6 +105,7 @@ export const PROGRAMS: Program[] = [
     id: "community",
     title: "Community Development Projects",
     summary: "Clean water, sanitation, environment, and emergency relief.",
+    image: "/images/about-community.png",
     featured: true,
     items: [
       "Clean water and sanitation initiatives",
@@ -118,6 +119,7 @@ export const PROGRAMS: Program[] = [
     id: "child-welfare",
     title: "Child Welfare Services",
     summary: "Protection, nutrition, and opportunity for orphans and vulnerable children.",
+    image: "/images/hero-classroom.png",
     featured: true,
     items: [
       "Support for orphans and vulnerable children",

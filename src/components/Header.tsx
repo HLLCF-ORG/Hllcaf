@@ -38,11 +38,11 @@ export default function Header() {
         </nav>
 
         <div className="nav-actions">
+          <Link href="/membership" className="btn btn-primary">
+            Join Us
+          </Link>
           <Link href="/get-involved" className="btn btn-gold">
             Donate Now
-          </Link>
-          <Link href="/contact" className="btn btn-primary">
-            Contact Us
           </Link>
         </div>
 
@@ -63,11 +63,11 @@ export default function Header() {
           </Link>
         ))}
         <div className="mobile-cta">
+          <Link href="/membership" className="btn btn-primary" onClick={() => setOpen(false)}>
+            Join Us
+          </Link>
           <Link href="/get-involved" className="btn btn-gold" onClick={() => setOpen(false)}>
             Donate Now
-          </Link>
-          <Link href="/contact" className="btn btn-primary" onClick={() => setOpen(false)}>
-            Contact Us
           </Link>
         </div>
       </div>
